@@ -1,0 +1,88 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux]
+        goarch: [amd64, arm64]
+    outputs:
+      matrix: ${{ toJson(matrix) }}
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "^1.22"
+
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          go build -v -o swaywal-${{ matrix.goos }}-${{ matrix.goarch }} ${{ github.workspace }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: swaywal-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: swaywal-${{ matrix.goos }}-${{ matrix.goarch }}
+
+  create-and-upload-release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: swaywal-linux-amd64
+          path: dist/linux/amd64/
+      - uses: actions/download-artifact@v3
+        with:
+          name: swaywal-linux-arm64
+          path: dist/linux/arm64/
+
+      - name: Upload Release Asset (Linux AMD64)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/linux/amd64/swaywal-linux-amd64
+          asset_name: swaywal-linux-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset (Linux ARM64)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/linux/arm64/swaywal-linux-arm64
+          asset_name: swaywal-linux-arm64
+          asset_content_type: application/octet-stream
