@@ -19,8 +19,8 @@ func main() {
 	unsplashAccessKey := os.Getenv("UNSPLASH_ACCESS_KEY")
 	width := os.Getenv("SWAY_WIDTH")
 	height := os.Getenv("SWAY_HEIGHT")
-	topics := os.Getenv("UNSPLASH_TOPICS")
-	unsplashURL := "https://api.unsplash.com/photos/random?w=" + width + "&h=" + height + "&auto=compress&fm=png&client_id=" + unsplashAccessKey + "&topics=" + topics
+	query := os.Getenv("UNSPLASH_SEARCH")
+	unsplashURL := "https://api.unsplash.com/photos/random?w=" + width + "&h=" + height + "&auto=compress&fm=png&client_id=" + unsplashAccessKey + "&query=" + query
 	wallpaperPath := "/tmp/swaywallpaper.png"
 	// Fetch and save the wallpaper
 	if err := fetchAndSaveWallpaper(unsplashURL, wallpaperPath); err != nil {
