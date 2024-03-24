@@ -1,8 +1,8 @@
 # go-swaywal
 
-Simple Go command line tool that runs as cron job to change wallpaper on sway window manager.
+Simple Go command line tool that runs as cron job to change wallpaper on sway window manager by fetching images from Unsplash.  
 
-Because coding is fun, and I ❤️ Go.
+Whether you're coding, browsing, or just enjoying your desktop, go-swaywal adds that extra bit of joy to your day with beautiful, dynamic backgrounds.  
 
 [![screenshot](screenshot.png)](./screenshot.png)
 
